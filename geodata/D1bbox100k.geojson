@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "D1bbox100k",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": null }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -122.295128529624861, 37.893884836597067 ], [ -122.197046224760257, 37.893884836597067 ], [ -122.197046224760257, 37.811059842476951 ], [ -122.294970076789866, 37.811059842476951 ], [ -122.295128529624861, 37.893884836597067 ] ] ] ] } }
+]
+}
