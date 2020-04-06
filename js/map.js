@@ -5,14 +5,14 @@ var map = new mapboxgl.Map({
   container: 'map', // Container ID
   style: 'mapbox://styles/mapbox/streets-v11', // Map style to use
   center: centerD1, // Starting position [lng, lat]
-  zoom: 12, // Starting zoom level
+  zoom: 12.6, // Starting zoom level
 });
 
 var geocoder = new MapboxGeocoder({ // Initialize the geocoder
   accessToken: mapboxgl.accessToken, // Set the access token
   placeholder: 'Search in District 1',
   mapboxgl: mapboxgl, // Set the mapbox-gl instance
-  marker: {color: 'orange'}, // https://docs.mapbox.com/mapbox-gl-js/example/point-from-geocoder-result/
+  marker: {color: 'rgba(76,0,53,1)'}, // https://docs.mapbox.com/mapbox-gl-js/example/point-from-geocoder-result/
   bbox: [-122.30937,37.84214,-122.23715,37.89838]
 });
 
@@ -61,10 +61,11 @@ map.on('load', function() {
             'source': 'district1',
             'layout': {},
             'paint': {
-              'fill-color': '#088',
-              'fill-opacity': 0.8
+              'fill-color': 'rgba(200, 100, 240, 0.3)',
+              'fill-outline-color': 'rgba(106, 34, 132, 1)'
               }
           });
+
 
   //     }
   // );
