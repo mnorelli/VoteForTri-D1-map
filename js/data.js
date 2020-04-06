@@ -1,4 +1,4 @@
-{
+var data = {
   "type": "FeatureCollection",
   "name": "District1",
   "features": [

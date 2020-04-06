@@ -30,16 +30,16 @@ map.addControl(new mapboxgl.NavigationControl());
 map.on('load', function() {
 
 
-    //     var data = $.ajax({
-    //       url:"https://raw.githubusercontent.com/mnorelli/VoteForTri-D1-map/master/geodata/District1.geojson",
-    //       dataType: "json",
-    //       success: console.log("District data loaded\n" + data),
-    //       error: function (xhr) {
-    //         alert(xhr.statusText)
-    //       }
-    //     })
+        var onlineData = $.ajax({
+          url:"https://raw.githubusercontent.com/mnorelli/VoteForTri-D1-map/master/geodata/District1.geojson",
+          dataType: "json",
+          success: console.log("District data loaded\n" + onlineData),
+          error: function (xhr) {
+            alert(xhr.statusText)
+          }
+        })
 
-    // $.when(data).done(function() {
+    $.when(onlineData).done(function() {
 
 //console.log("before d3")
 
@@ -47,12 +47,12 @@ map.on('load', function() {
   //     'https://raw.githubusercontent.com/mnorelli/VoteForTri-D1-map/master/geodata/District1.geojson',
   //     function(err, data) {
   //         if (err) throw err;
-          console.log(data);
-          console.log("District data loaded");
+
+          // console.log("District data loaded");
 
           map.addSource('district1', {
               'type': 'geojson',
-              data: data
+              data: onlineData
           });
 
           map.addLayer({
@@ -66,8 +66,8 @@ map.on('load', function() {
               }
           });
 
-  //     }
-  // );
+      }
+  );
 
 //console.log("after d3")
 
