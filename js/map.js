@@ -13,7 +13,7 @@ var geocoder = new MapboxGeocoder({ // Initialize the geocoder
   placeholder: 'Search in District 1',
   mapboxgl: mapboxgl, // Set the mapbox-gl instance
   marker: {color: 'rgba(76,0,53,1)'}, // https://docs.mapbox.com/mapbox-gl-js/example/point-from-geocoder-result/
-  bbox: [-122.29513,37.89389,-122.19705,37.81106]
+  bbox: [-122.29513,37.81106,-122.19705,37.89389]
 });
 
 // Add the geocoder to the map
