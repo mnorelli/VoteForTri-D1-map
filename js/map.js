@@ -37,21 +37,42 @@ map.addControl(new mapboxgl.NavigationControl());
 
 map.on('load', function() {
 
+  var layers = map.getStyle().layers;
+  // Find the index of the first symbol layer in the map style
+  var firstSymbolId;
+  for (var i = 0; i < layers.length; i++) {
+    if (layers[i].type === 'symbol') {
+      firstSymbolId = layers[i].id;
+      break;
+    }
+  }
+
   map.addSource('district1', {
       'type': 'geojson',
       data: data
   });
 
   map.addLayer({
+    'id': 'district-line',
+    'type': 'line',
+    'source': 'district1',
+    'layout': {},
+    'paint': {
+      'line-color': 'rgba(106, 34, 132, 0.8)',
+      'line-width': 2
+      }
+  });
+
+    map.addLayer({
     'id': 'district',
     'type': 'fill',
     'source': 'district1',
     'layout': {},
     'paint': {
-      'fill-color': 'rgba(200, 100, 240, 0.3)',
-      'fill-outline-color': 'rgba(106, 34, 132, 1)'
+      'fill-color': 'rgba(200, 100, 240, 0.3)'
       }
-  });
+  },
+  firstSymbolId);
 
 // https://stackoverflow.com/questions/57677373/how-to-get-mapbox-geocoder-result-place-country-text-names-into-a-javascript-fun
   geocoder.on('result', function(e) {
