@@ -1,0 +1,3 @@
+parse URL to pass to city from Search lonlat result
+save Search text into database
+allow database to be exported/viewed
