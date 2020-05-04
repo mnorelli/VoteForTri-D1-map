@@ -16,21 +16,36 @@ var geocoder = new MapboxGeocoder({
   bbox: [-122.29513,37.81106,-122.19705,37.89389]
 });
 
-// ArcGIS REST query parts
-var reqTarget = 'http://gisapps1.mapoakland.com/oakgis/rest/services/Prod/CouncilDistricts/MapServer/identify';
-var reqType = 'f=json';
-var reqTol = 'tolerance=1';
-var reqImgDisp = 'imageDisplay=1440,217,96';
-var reqGType = 'geometryType=esriGeometryPoint';
-var reqGeomRet = 'returnGeometry=false';
-var reqLyrs = 'layers=top:0';
-var reqURLpart1 = reqTarget + '?'
-             + reqGType + '&'
-             + reqLyrs + '&'
-             + reqTol + '&'
-             + reqImgDisp + '&'
-             + reqGeomRet + '&'
-             + reqType
+//  1. Construct ArcGIS REST to query Oakland District by lonlat
+var req1Target = 'http://gisapps1.mapoakland.com/oakgis/rest/services/Prod/CouncilDistricts/MapServer/identify';
+var req1Type = 'f=json';
+var req1Tol = 'tolerance=1';
+var req1ImgDisp = 'imageDisplay=1440,217,96';
+var req1GType = 'geometryType=esriGeometryPoint';
+var req1GReturn = 'returnGeometry=false';
+var req1Lyrs = 'layers=top:0';
+var req1SpRef = 'sr=4326';  // WGS84
+var req1Ext = 'mapExtent=-122.294970,37.811059,-122.197046,37.893884';
+var req1URLpart1 = req1Target + '?'
+             + req1GType + '&'
+             + req1Lyrs + '&'
+             + req1Tol + '&'
+             + req1ImgDisp + '&'
+             + req1GReturn + '&'
+             + req1Type
+var req1part2 = req1SpRef + '&'
+             + req1Ext
+
+//   2. Construct ArcGIS REST to query Esri geocoder by lonlat by single-line address
+var req2Target = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?SingleLine=';
+var req2Type = 'f=pjson';
+var req2Store = 'forStorage=false';
+var req2Fields = 'outFields=*';
+var req2part2 = '&'
+             + req2Fields + '&'
+             + req2Store + '&'
+             + req2Type
+
 
 map.addControl(geocoder,'top-left');
 map.addControl(new mapboxgl.NavigationControl());
@@ -38,14 +53,6 @@ map.addControl(new mapboxgl.NavigationControl());
 map.on('load', function() {
 
   var layers = map.getStyle().layers;
-  // Find the index of the first symbol layer in the map style
-  var firstSymbolId;
-  for (var i = 0; i < layers.length; i++) {
-    if (layers[i].type === 'symbol') {
-      firstSymbolId = layers[i].id;
-      break;
-    }
-  }
 
   map.addSource('district1', {
       'type': 'geojson',
@@ -58,10 +65,19 @@ map.on('load', function() {
     'source': 'district1',
     'layout': {},
     'paint': {
-      'line-color': 'rgba(106, 34, 132, 0.8)',
-      'line-width': 2
+      'line-color': 'rgba(200, 100, 240, 0.9)',
+      'line-width': 1.5
       }
   });
+
+  // Find the index of the first symbol layer in the map style
+  var firstSymbolId;
+  for (var i = 0; i < layers.length; i++) {
+    if (layers[i].type === 'symbol') {
+      firstSymbolId = layers[i].id;
+      break;
+    }
+  }
 
     map.addLayer({
     'id': 'district',
@@ -74,39 +90,39 @@ map.on('load', function() {
   },
   firstSymbolId);
 
-// https://stackoverflow.com/questions/57677373/how-to-get-mapbox-geocoder-result-place-country-text-names-into-a-javascript-fun
   geocoder.on('result', function(e) {
-      console.log(e.result.address + ' ' + e.result.text);
-      var reqLon = e.result.geometry.coordinates[0]
-      var reqLat = e.result.geometry.coordinates[1]
 
-      // var reqSpRef = '102643';  // 2227  NAD83 CA State Plane Zone 3 feet
-      // var reqExt = 'mapExtent=6043165,2122759,6071995,2152385';
-      // var reqGeom = 'geometry=6051461,2130232'; 
+      // TO DO
+      // 
+      // check for district by switching from Mapbox to Esri geocode
+      // catch errors for no returns from oakland query (e.g. Ikea)
+      // save Search text into database
+      // allow database to be exported/viewed
 
-      var reqSpRef = 'sr=4326';  // WGS84
-      var reqExt = 'mapExtent=-122.294970,37.811059,-122.197046,37.893884';
-      var reqGeom = 'geometry=' + reqLon + ',' + reqLat; 
-
-      var reqURL = reqURLpart1 + '&'
-                   + reqGeom + '&'
-                   + reqSpRef + '&'
-                   + reqExt
-
-      var request = new XMLHttpRequest();
-
-      // Open a new connection, using the GET request on the URL endpoint
-      request.open('GET', reqURL, true);
-
-      request.onload = function() {
-        // Begin accessing JSON data here
+      // Get Esri geographic coordinate for MapBox query name or address
+      console.log(e.result.place_name);
+      var req2URL = req2Target + e.result.place_name + req2part2;
+      var requestEsriGeocode = new XMLHttpRequest();
+      requestEsriGeocode.open('GET', req2URL, true);
+      requestEsriGeocode.onload = function() {
+        var esri_obj = JSON.parse(this.response);
+        console.log("The Esri geocode for this address is " + esri_obj.candidates[0].location.x + ', ' + esri_obj.candidates[0].location.y);
+      }
+      requestEsriGeocode.send();
+      
+      // Get Oakland District for MapBox geocoded point
+      var req1Lon = e.result.geometry.coordinates[0]
+      var req1Lat = e.result.geometry.coordinates[1]
+      var req1Geom = 'geometry=' + req1Lon + ',' + req1Lat; 
+      var req1URL = req1URLpart1 + '&' + req1Geom + '&' + req1part2
+      var requestDistrict = new XMLHttpRequest();
+      requestDistrict.open('GET', req1URL, true);
+      requestDistrict.onload = function() {
         var oakgis_obj = JSON.parse(this.response);
-
         console.log("Your address is in " + oakgis_obj.results[0].attributes.FULLNAME);
       }
+      requestDistrict.send();
 
-      // Send request
-      request.send();
   });
 
 });
