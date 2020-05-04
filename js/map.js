@@ -95,7 +95,7 @@ map.on('load', function() {
       // TO DO
       // 
       // check for district by switching from Mapbox to Esri geocode
-      // catch errors for no returns from oakland query (e.g. Ikea)
+      // move results from console.log to front end
       // save Search text into database
       // allow database to be exported/viewed
 
@@ -119,7 +119,13 @@ map.on('load', function() {
       requestDistrict.open('GET', req1URL, true);
       requestDistrict.onload = function() {
         var oakgis_obj = JSON.parse(this.response);
-        console.log("Your address is in " + oakgis_obj.results[0].attributes.FULLNAME);
+        if (Object.keys(oakgis_obj.results).length > 0) {
+          console.log("Your address is in " + oakgis_obj.results[0].attributes.FULLNAME);
+        } else {
+          console.log("Your address is not in an Oakland City Council District");
+        }
+
+
       }
       requestDistrict.send();
 
