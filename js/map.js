@@ -95,6 +95,7 @@ map.on('load', function() {
       // TO DO
       // 
       // check for district by switching from Mapbox to Esri geocode
+      //   - implement with promises: https://gomakethings.com/promise-based-xhr/
       // move results from console.log to front end
       // save Search text into database
       // allow database to be exported/viewed
@@ -106,7 +107,9 @@ map.on('load', function() {
       requestEsriGeocode.open('GET', req2URL, true);
       requestEsriGeocode.onload = function() {
         var esri_obj = JSON.parse(this.response);
-        console.log("The Esri geocode for this address is " + esri_obj.candidates[0].location.x + ', ' + esri_obj.candidates[0].location.y);
+        var req2Lon = esri_obj.candidates[0].location.x
+        var req2Lat = esri_obj.candidates[0].location.y
+        console.log("The Esri geocode for this address is " + req2Lon + ', ' + req2Lat);
       }
       requestEsriGeocode.send();
       
