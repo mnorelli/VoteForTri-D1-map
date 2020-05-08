@@ -37,15 +37,34 @@ var req1part2 = req1SpRef + '&'
              + req1Ext
 
 //   2. Construct ArcGIS REST to query Esri geocoder by lonlat by single-line address
-var req2Target = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?SingleLine=';
-var req2Type = 'f=pjson';
-var req2Store = 'forStorage=false';
-var req2Fields = 'outFields=*';
-var req2part2 = '&'
-             + req2Fields + '&'
-             + req2Store + '&'
-             + req2Type
+var esriTarget = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?SingleLine=';
+var esriType = 'f=pjson';
+var esriStore = 'forStorage=false';
+var esriFields = 'outFields=*';
+var esripart2 = '&'
+             + esriFields + '&'
+             + esriStore + '&'
+             + esriType
 
+// https://gomakethings.com/promise-based-xhr/
+var makeRequest = function (url) {
+  var request = new XMLHttpRequest();
+  return new Promise(function (resolve, reject) {
+    request.onreadystatechange = function () {
+      if (request.readyState !== 4) return;
+      if (request.status >= 200 && request.status < 300) {
+        resolve(request);
+      } else {
+        reject({
+          status: request.status,
+          statusText: request.statusText
+        });
+      }
+    };
+    request.open('GET', url, true);
+    request.send();
+  });
+};
 
 map.addControl(geocoder,'top-left');
 map.addControl(new mapboxgl.NavigationControl());
@@ -94,44 +113,36 @@ map.on('load', function() {
 
       // TO DO
       // 
-      // check for district by switching from Mapbox to Esri geocode
-      //   - implement with promises: https://gomakethings.com/promise-based-xhr/
-      // move results from console.log to front end
+      // move results from console.log to DOM
       // save Search text into database
       // allow database to be exported/viewed
+      // zoom back out button
+      // widen searchbar?
 
       // Get Esri geographic coordinate for MapBox query name or address
       console.log(e.result.place_name);
-      var req2URL = req2Target + e.result.place_name + req2part2;
-      var requestEsriGeocode = new XMLHttpRequest();
-      requestEsriGeocode.open('GET', req2URL, true);
-      requestEsriGeocode.onload = function() {
-        var esri_obj = JSON.parse(this.response);
-        var req2Lon = esri_obj.candidates[0].location.x
-        var req2Lat = esri_obj.candidates[0].location.y
-        console.log("The Esri geocode for this address is " + req2Lon + ', ' + req2Lat);
-      }
-      requestEsriGeocode.send();
-      
-      // Get Oakland District for MapBox geocoded point
-      var req1Lon = e.result.geometry.coordinates[0]
-      var req1Lat = e.result.geometry.coordinates[1]
-      var req1Geom = 'geometry=' + req1Lon + ',' + req1Lat; 
-      var req1URL = req1URLpart1 + '&' + req1Geom + '&' + req1part2
-      var requestDistrict = new XMLHttpRequest();
-      requestDistrict.open('GET', req1URL, true);
-      requestDistrict.onload = function() {
-        var oakgis_obj = JSON.parse(this.response);
+      var esriURL = esriTarget + e.result.place_name + esripart2;
+      makeRequest(esriURL)
+      .then(function (esriPt) {
+        var esri_obj = JSON.parse(esriPt.response);
+        var esriX = esri_obj.candidates[0].location.x
+        var esriY = esri_obj.candidates[0].location.y
+        console.log("The Esri geocode for this address is " + esriX + ', ' + esriY);
+        return makeRequest(req1URLpart1 + '&' + 'geometry=' + esriX + ',' + esriY + '&' + req1part2);
+      })
+      // Get Oakland District for Esri geocoded point
+      .then(function (districtPt) {
+        var oakgis_obj = JSON.parse(districtPt.response);
         if (Object.keys(oakgis_obj.results).length > 0) {
           console.log("Your address is in " + oakgis_obj.results[0].attributes.FULLNAME);
         } else {
           console.log("Your address is not in an Oakland City Council District");
         }
-
-
-      }
-      requestDistrict.send();
-
+      })
+      .catch(function (error) {
+        console.log('Something went wrong', error);
+      });
+      
   });
 
 });
