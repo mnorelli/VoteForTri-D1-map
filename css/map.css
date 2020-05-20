@@ -8,4 +8,60 @@ body {
   top: 0;
   bottom: 0;
   width: 100%;
+  margin-top: 60px;
+}
+
+.top {
+  display: flex;
+  height: 60px;
+}
+
+.geocoder {
+  /*position: absolute;*/
+  z-index: 1;
+  width: 26.5%;
+  /*left: 50%;*/
+  margin: 10px 0px 0px 10px;
+  top: 10px;
+}
+
+.mapboxgl-ctrl-geocoder {
+  min-width: 100%;
+}
+
+.button {
+/*  position: absolute;*/
+  z-index: 1;
+  width: 50%;
+  /*left: 50%;*/
+  margin-left: 10px;
+  top: 10px;
+}
+
+.styled {
+    height: 35px;
+    margin-top: 10px;
+    border: 0;
+    padding: 0 20px;
+    font-size: 1rem;
+    text-align: center;
+    color: #fff;
+    text-shadow: 1px 1px 1px #000;
+    border-radius: 10px;
+    background-color: rgba(200, 200, 200, 1);
+    background-image: linear-gradient(to top left,
+                                      rgba(0, 0, 0, .2),
+                                      rgba(0, 0, 0, .2) 30%,
+                                      rgba(0, 0, 0, 0));
+    box-shadow: inset 2px 2px 3px rgba(255, 255, 255, .6),
+                inset -2px -2px 3px rgba(0, 0, 0, .6);
+}
+
+.styled:hover {
+    background-color: rgba(220, 220, 220, 1);
+}
+
+.styled:active {
+    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
+                inset 2px 2px 3px rgba(0, 0, 0, .6);
 }
