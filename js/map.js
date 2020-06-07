@@ -1,7 +1,7 @@
 var centerD1 = [-122.246048,37.852483];
 var bboxLR = [-122.29513,37.81106];
 var bboxUL = [-122.19705,37.89389];
-var initialZoom = 12.6;
+var initialZoom = 12.8;
 
 
 mapboxgl.accessToken = TOKEN;
