@@ -1,11 +1,15 @@
-var centerD1 = [-122.246048,37.852483]
+var centerD1 = [-122.246048,37.852483];
+var bboxLR = [-122.29513,37.81106];
+var bboxUL = [-122.19705,37.89389];
+var initialZoom = 12.8;
+
 
 mapboxgl.accessToken = TOKEN;
 var map = new mapboxgl.Map({
   container: 'map', 
   style: 'mapbox://styles/mapbox/streets-v11',
   center: centerD1, 
-  zoom: 12.6, 
+  zoom: initialZoom, 
 });
 
 var geocoder = new MapboxGeocoder({ 
@@ -13,7 +17,7 @@ var geocoder = new MapboxGeocoder({
   placeholder: 'Search in District 1',
   mapboxgl: mapboxgl,
   marker: {color: 'rgba(76,0,53,1)'}, 
-  bbox: [-122.29513,37.81106,-122.19705,37.89389]
+  bbox: [bboxLR[0],bboxLR[1],bboxUL[0],bboxUL[1]]
 });
 
 //  1. Construct ArcGIS REST to query Oakland District by lonlat
@@ -66,10 +70,12 @@ var makeRequest = function (url) {
   });
 };
 
-map.addControl(geocoder,'top-left');
-map.addControl(new mapboxgl.NavigationControl());
+
+document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
 
 map.on('load', function() {
+
+  map.addControl(new mapboxgl.NavigationControl());
 
   var layers = map.getStyle().layers;
 
@@ -143,6 +149,13 @@ map.on('load', function() {
         console.log('Something went wrong', error);
       });
       
+  });
+
+  document.getElementById('button').addEventListener('click', function() {
+    map.flyTo({
+      center: centerD1, 
+      zoom: initialZoom
+    });
   });
 
 });
