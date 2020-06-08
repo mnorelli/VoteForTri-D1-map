@@ -3,15 +3,14 @@ body {
   padding: 0;
 }
 
-#map {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 100%;
-  margin-top: 60px;
+#message {
+  height: 25px;
+  font-size: 1em;
+  margin: 15px 0 0 20px;
+  font-family: Helvetica;
 }
 
-.top {
+.search {
   /*height: 60px;*/
   display: inline;
   z-index: 1;
@@ -32,6 +31,7 @@ body {
 }
 
 .styled {
+    outline: none;
     height: 35px;
     margin-top: 10px;
     border: 0;
@@ -57,4 +57,12 @@ body {
 .styled:active {
     box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
                 inset 2px 2px 3px rgba(0, 0, 0, .6);
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  margin-top: 90px;
 }

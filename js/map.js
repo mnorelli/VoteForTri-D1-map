@@ -73,8 +73,15 @@ var makeRequest = function (url) {
 
 document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
 
+
 map.on('load', function() {
 
+  var msg = document.getElementById('message');
+  function say(message) {
+    msg.textContent=''
+    msg.textContent=message;
+  }
+  
   map.addControl(new mapboxgl.NavigationControl());
 
   var layers = map.getStyle().layers;
@@ -119,11 +126,8 @@ map.on('load', function() {
 
       // TO DO
       // 
-      // move results from console.log to DOM
       // save Search text into database
       // allow database to be exported/viewed
-      // zoom back out button
-      // widen searchbar?
 
       // Get Esri geographic coordinate for MapBox query name or address
       console.log(e.result.place_name);
@@ -133,25 +137,25 @@ map.on('load', function() {
         var esri_obj = JSON.parse(esriPt.response);
         var esriX = esri_obj.candidates[0].location.x
         var esriY = esri_obj.candidates[0].location.y
-        console.log("The Esri geocode for this address is " + esriX + ', ' + esriY);
+        console.log('The Esri geocode for this address is ' + esriX + ', ' + esriY);
         return makeRequest(req1URLpart1 + '&' + 'geometry=' + esriX + ',' + esriY + '&' + req1part2);
       })
       // Get Oakland District for Esri geocoded point
       .then(function (districtPt) {
         var oakgis_obj = JSON.parse(districtPt.response);
         if (Object.keys(oakgis_obj.results).length > 0) {
-          console.log("Your address is in " + oakgis_obj.results[0].attributes.FULLNAME);
+          say('Your address is in ' + oakgis_obj.results[0].attributes.FULLNAME);
         } else {
-          console.log("Your address is not in an Oakland City Council District");
+          say('Your address is not in an Oakland City Council District');
         }
       })
       .catch(function (error) {
-        console.log('Something went wrong', error);
+        say('Something went wrong', error);
       });
-      
   });
 
   document.getElementById('button').addEventListener('click', function() {
+    say('');
     map.flyTo({
       center: centerD1, 
       zoom: initialZoom
@@ -159,11 +163,3 @@ map.on('load', function() {
   });
 
 });
-
-
-
-
-
-
-
-
