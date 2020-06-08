@@ -22,7 +22,7 @@ var geocoder = new MapboxGeocoder({
 });
 
 //  1. Construct ArcGIS REST to query Oakland District by lonlat
-var req1Target = 'http://gisapps1.mapoakland.com/oakgis/rest/services/Prod/CouncilDistricts/MapServer/identify';
+var req1Target = 'https://gisapps1.mapoakland.com/oakgis/rest/services/Prod/CouncilDistricts/MapServer/identify';
 var req1Type = 'f=json';
 var req1Tol = 'tolerance=1';
 var req1ImgDisp = 'imageDisplay=1440,217,96';
@@ -42,7 +42,7 @@ var req1part2 = req1SpRef + '&'
              + req1Ext
 
 //   2. Construct ArcGIS REST to query Esri geocoder by lonlat by single-line address
-var esriTarget = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?SingleLine=';
+var esriTarget = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?SingleLine=';
 var esriType = 'f=pjson';
 var esriStore = 'forStorage=false';
 var esriFields = 'outFields=*';
@@ -125,7 +125,7 @@ map.on('load', function() {
   firstSymbolId);
 
   geocoder.on('result', function(e) {
-    
+
 
       // TO DO
       // 
