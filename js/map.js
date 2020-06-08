@@ -16,8 +16,9 @@ var geocoder = new MapboxGeocoder({
   accessToken: mapboxgl.accessToken, 
   placeholder: 'Search in District 1',
   mapboxgl: mapboxgl,
-  marker: {color: 'rgba(76,0,53,1)'}, 
-  bbox: [bboxLR[0],bboxLR[1],bboxUL[0],bboxUL[1]]
+  marker: {color: 'rgba(76,0,53,1)'}
+  // , 
+  // bbox: [bboxLR[0],bboxLR[1],bboxUL[0],bboxUL[1]]
 });
 
 //  1. Construct ArcGIS REST to query Oakland District by lonlat
@@ -77,8 +78,9 @@ document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
 map.on('load', function() {
 
   var msg = document.getElementById('message');
-  function say(message) {
-    msg.textContent=''
+  function say(message, color) {
+    msg.textContent='';
+    msg.style.color=color||'black';
     msg.textContent=message;
   }
   
@@ -123,11 +125,13 @@ map.on('load', function() {
   firstSymbolId);
 
   geocoder.on('result', function(e) {
+    
 
       // TO DO
       // 
       // save Search text into database
       // allow database to be exported/viewed
+
 
       // Get Esri geographic coordinate for MapBox query name or address
       console.log(e.result.place_name);
@@ -143,14 +147,20 @@ map.on('load', function() {
       // Get Oakland District for Esri geocoded point
       .then(function (districtPt) {
         var oakgis_obj = JSON.parse(districtPt.response);
+        console.log(Object.keys(oakgis_obj.results).length)
         if (Object.keys(oakgis_obj.results).length > 0) {
-          say('Your address is in ' + oakgis_obj.results[0].attributes.FULLNAME);
+          if (oakgis_obj.results[0].attributes.NAME == 'CCD1') {
+            say('Your address is in ' + oakgis_obj.results[0].attributes.FULLNAME, 'darkgreen');
+          }
+          else {
+            say('Your address is in ' + oakgis_obj.results[0].attributes.FULLNAME, 'crimson');
+          }
         } else {
-          say('Your address is not in an Oakland City Council District');
+          say('Your address is not in an Oakland City Council District','darkgrey');
         }
       })
       .catch(function (error) {
-        say('Something went wrong', error);
+        say('Something went wrong' + ' ' + error);
       });
   });
 
