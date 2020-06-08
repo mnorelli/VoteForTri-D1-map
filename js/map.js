@@ -22,7 +22,7 @@ var geocoder = new MapboxGeocoder({
 });
 
 //  1. Construct ArcGIS REST to query Oakland District by lonlat
-var req1Target = 'http://gisapps1.mapoakland.com/oakgis/rest/services/Prod/CouncilDistricts/MapServer/identify';
+var req1Target = 'https://gisapps1.mapoakland.com/oakgis/rest/services/Prod/CouncilDistricts/MapServer/identify';
 var req1Type = 'f=json';
 var req1Tol = 'tolerance=1';
 var req1ImgDisp = 'imageDisplay=1440,217,96';
@@ -160,7 +160,8 @@ map.on('load', function() {
         }
       })
       .catch(function (error) {
-        say('Something went wrong' + ' ' + error);
+        say('Something went wrong');
+        console.log(error);
       });
   });
 
