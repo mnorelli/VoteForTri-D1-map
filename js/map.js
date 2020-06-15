@@ -1,7 +1,7 @@
 var centerD1 = [-122.246048,37.852483];
 var bboxLR = [-122.29513,37.81106];
 var bboxUL = [-122.19705,37.89389];
-var initialZoom = 12.8;
+var initialZoom = 12.5;
 
 
 mapboxgl.accessToken = TOKEN;
@@ -17,31 +17,11 @@ var geocoder = new MapboxGeocoder({
   placeholder: 'Search in District 1',
   mapboxgl: mapboxgl,
   marker: {color: 'rgba(76,0,53,1)'}
-  // , 
-  // bbox: [bboxLR[0],bboxLR[1],bboxUL[0],bboxUL[1]]
 });
 
-//  1. Construct ArcGIS REST to query Oakland District by lonlat
-var req1Target = 'http://gisapps1.mapoakland.com/oakgis/rest/services/Prod/CouncilDistricts/MapServer/identify';
-var req1Type = 'f=json';
-var req1Tol = 'tolerance=1';
-var req1ImgDisp = 'imageDisplay=1440,217,96';
-var req1GType = 'geometryType=esriGeometryPoint';
-var req1GReturn = 'returnGeometry=false';
-var req1Lyrs = 'layers=top:0';
-var req1SpRef = 'sr=4326';  // WGS84
-var req1Ext = 'mapExtent=-122.294970,37.811059,-122.197046,37.893884';
-var req1URLpart1 = req1Target + '?'
-             + req1GType + '&'
-             + req1Lyrs + '&'
-             + req1Tol + '&'
-             + req1ImgDisp + '&'
-             + req1GReturn + '&'
-             + req1Type
-var req1part2 = req1SpRef + '&'
-             + req1Ext
 
-//   2. Construct ArcGIS REST to query Esri geocoder by lonlat by single-line address
+
+//   Construct ArcGIS REST to query Esri geocoder by lonlat by single-line address
 var esriTarget = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?SingleLine=';
 var esriType = 'f=pjson';
 var esriStore = 'forStorage=false';
@@ -113,60 +93,94 @@ map.on('load', function() {
     }
   }
 
-    map.addLayer({
-    'id': 'district',
-    'type': 'fill',
-    'source': 'district1',
-    'layout': {},
-    'paint': {
-      'fill-color': 'rgba(200, 100, 240, 0.3)'
-      }
+  map.addLayer({
+  'id': 'district',
+  'type': 'fill',
+  'source': 'district1',
+  'layout': {},
+  'paint': {
+    'fill-color': 'rgba(200, 100, 240, 0.3)'
+    }
   },
   firstSymbolId);
 
-  geocoder.on('result', function(e) {
+  map.addSource('districtsAll', {
+      'type': 'geojson',
+      data: districtsAll
+  });
 
+  map.addLayer({
+  'id': 'allDistricts',
+  'type': 'fill',
+  'source': 'districtsAll',
+  'layout': {},
+  'paint': {
+    'fill-color': 'rgba(0,0,0, .2)'
+    }
+  },
+  firstSymbolId);
+
+  map.on('click', function(e) {
+        var features = map.queryRenderedFeatures(e.point, {
+          layers: ['allDistricts']
+        });
+
+        features.forEach(i => console.log(i.properties.NAME));
+    });
+
+  geocoder.on('result', function(e) {
 
       // TO DO
       // 
       // save Search text into database
       // allow database to be exported/viewed
 
+        // var features = map.queryRenderedFeatures(e, {
+        //   layers: ['allDistricts']
+        // });
+
+        // features.forEach(i => console.log(i.properties.NAME));
 
       // Get Esri geographic coordinate for MapBox query name or address
       console.log(e.result.place_name);
-      var esriURL = esriTarget + e.result.place_name + esripart2;
-      makeRequest(esriURL)
-      .then(function (esriPt) {
-        var esri_obj = JSON.parse(esriPt.response);
-        var esriX = esri_obj.candidates[0].location.x
-        var esriY = esri_obj.candidates[0].location.y
-        console.log('The Esri geocode for this address is ' + esriX + ', ' + esriY);
-        return makeRequest(req1URLpart1 + '&' + 'geometry=' + esriX + ',' + esriY + '&' + req1part2);
-      })
-      // Get Oakland District for Esri geocoded point
-      .then(function (districtPt) {
-        var oakgis_obj = JSON.parse(districtPt.response);
-        console.log(Object.keys(oakgis_obj.results).length)
-        if (Object.keys(oakgis_obj.results).length > 0) {
-          if (oakgis_obj.results[0].attributes.NAME == 'CCD1') {
-            say('Your address is in ' + oakgis_obj.results[0].attributes.FULLNAME, 'darkgreen');
+
+      // var esriURL = esriTarget + e.result.place_name + esripart2;
+      // makeRequest(esriURL)
+      // .then(function (esriPt) {
+      //   var esri_obj = JSON.parse(esriPt.response);
+      //   var esriX = esri_obj.candidates[0].location.x
+      //   var esriY = esri_obj.candidates[0].location.y
+      //   console.log('The Esri geocode for this address is ' + esriX + ', ' + esriY);
+      //   var point = new mapboxgl.Point(esriX,esriY);
+
+        console.log(e.result.place_name);
+        console.log(e.result.center);
+
+        var features = map.queryRenderedFeatures(e.result.center, {
+          layers: ['allDistricts']
+        });
+
+        features.forEach(i => console.log(i.properties.NAME));
+
+        if (features[0]) {
+          if (features[0].properties.NAME == 'CCD1') {
+            say('Your address is in ' + features[0].properties.FULLNAME, 'darkgreen');
           }
           else {
-            say('Your address is in ' + oakgis_obj.results[0].attributes.FULLNAME, 'crimson');
+            say('Your address is in ' + features[0].properties.FULLNAME, 'crimson');
           }
         } else {
-          say('Your address is not in an Oakland City Council District','darkgrey');
+            say('Your address is not in an Oakland City Council District','darkgrey');
         }
-      })
-      .catch(function (error) {
-        say('Something went wrong');
-        console.log(error);
       });
-  });
+      // .catch(function (error) {
+      //   say('Something went wrong');
+      //   console.log(error);
+      // });
+  // });
 
   document.getElementById('button').addEventListener('click', function() {
-    say('');
+    // say('');
     map.flyTo({
       center: centerD1, 
       zoom: initialZoom
