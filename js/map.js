@@ -2,6 +2,7 @@ var centerD1 = [-122.246048,37.852483];
 var bboxLR = [-122.29513,37.81106];
 var bboxUL = [-122.19705,37.89389];
 var initialZoom = 12.5;
+var skip = 'no';
 
 
 mapboxgl.accessToken = TOKEN;
@@ -20,36 +21,35 @@ var geocoder = new MapboxGeocoder({
 });
 
 
-
 //   Construct ArcGIS REST to query Esri geocoder by lonlat by single-line address
-var esriTarget = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?SingleLine=';
-var esriType = 'f=pjson';
-var esriStore = 'forStorage=false';
-var esriFields = 'outFields=*';
-var esripart2 = '&'
-             + esriFields + '&'
-             + esriStore + '&'
-             + esriType
+// var esriTarget = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?SingleLine=';
+// var esriType = 'f=pjson';
+// var esriStore = 'forStorage=false';
+// var esriFields = 'outFields=*';
+// var esripart2 = '&'
+//              + esriFields + '&'
+//              + esriStore + '&'
+//              + esriType
 
 // https://gomakethings.com/promise-based-xhr/
-var makeRequest = function (url) {
-  var request = new XMLHttpRequest();
-  return new Promise(function (resolve, reject) {
-    request.onreadystatechange = function () {
-      if (request.readyState !== 4) return;
-      if (request.status >= 200 && request.status < 300) {
-        resolve(request);
-      } else {
-        reject({
-          status: request.status,
-          statusText: request.statusText
-        });
-      }
-    };
-    request.open('GET', url, true);
-    request.send();
-  });
-};
+// var makeRequest = function (url) {
+//   var request = new XMLHttpRequest();
+//   return new Promise(function (resolve, reject) {
+//     request.onreadystatechange = function () {
+//       if (request.readyState !== 4) return;
+//       if (request.status >= 200 && request.status < 300) {
+//         resolve(request);
+//       } else {
+//         reject({
+//           status: request.status,
+//           statusText: request.statusText
+//         });
+//       }
+//     };
+//     request.open('GET', url, true);
+//     request.send();
+//   });
+// };
 
 
 document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
@@ -115,7 +115,7 @@ map.on('load', function() {
   'source': 'districtsAll',
   'layout': {},
   'paint': {
-    'fill-color': 'rgba(0,0,0, .2)'
+    'fill-color': 'rgba(0,0,0, 0)'
     }
   },
   firstSymbolId);
@@ -130,49 +130,56 @@ map.on('load', function() {
 
   geocoder.on('result', function(e) {
 
-      // TO DO
-      // 
-      // save Search text into database
-      // allow database to be exported/viewed
+  // TO DO
+  // 
+  // save Search text into database
+  // allow database to be exported/viewed
 
-        // var features = map.queryRenderedFeatures(e, {
-        //   layers: ['allDistricts']
-        // });
 
-        // features.forEach(i => console.log(i.properties.NAME));
+    // features.forEach(i => console.log(i.properties.NAME));
 
-      // Get Esri geographic coordinate for MapBox query name or address
-      console.log(e.result.place_name);
+  // Get Esri geographic coordinate for MapBox query name or address
+  // console.log(e.result.place_name);
 
-      // var esriURL = esriTarget + e.result.place_name + esripart2;
-      // makeRequest(esriURL)
-      // .then(function (esriPt) {
-      //   var esri_obj = JSON.parse(esriPt.response);
-      //   var esriX = esri_obj.candidates[0].location.x
-      //   var esriY = esri_obj.candidates[0].location.y
-      //   console.log('The Esri geocode for this address is ' + esriX + ', ' + esriY);
-      //   var point = new mapboxgl.Point(esriX,esriY);
+  // var esriURL = esriTarget + e.result.place_name + esripart2;
+  // makeRequest(esriURL)
+  // .then(function (esriPt) {
+  //   var esri_obj = JSON.parse(esriPt.response);
+  //   var esriX = esri_obj.candidates[0].location.x
+  //   var esriY = esri_obj.candidates[0].location.y
+  //   console.log('The Esri geocode for this address is ' + esriX + ', ' + esriY);
+  //   var point = new mapboxgl.Point(esriX,esriY);
 
-        console.log(e.result.place_name);
-        console.log(e.result.center);
 
-        var features = map.queryRenderedFeatures(e.result.center, {
-          layers: ['allDistricts']
-        });
+    say('','black');
 
-        features.forEach(i => console.log(i.properties.NAME));
+    console.log(e.result.place_name);
+    console.log(e.result.center);
 
-        if (features[0]) {
-          if (features[0].properties.NAME == 'CCD1') {
-            say('Your address is in ' + features[0].properties.FULLNAME, 'darkgreen');
-          }
-          else {
-            say('Your address is in ' + features[0].properties.FULLNAME, 'crimson');
-          }
-        } else {
-            say('Your address is not in an Oakland City Council District','darkgrey');
-        }
-      });
+    map.on('moveend', function() {
+
+
+      if (skip == 'no') {
+
+         var features = map.queryRenderedFeatures(e.result.center.point, {
+            layers: ['allDistricts']
+          });
+  
+          if (features[0]) {
+            if (features[0].properties.NAME == 'CCD1') {
+              say('Your address is in ' + features[0].properties.FULLNAME, 'darkgreen');
+            }
+            else {
+              say('Your address is in ' + features[0].properties.FULLNAME, 'crimson');
+            }
+          } else {
+              say('Your address is not in an Oakland City Council District','darkgrey');
+          };
+      };
+    
+    });
+
+  });
       // .catch(function (error) {
       //   say('Something went wrong');
       //   console.log(error);
@@ -185,6 +192,7 @@ map.on('load', function() {
       center: centerD1, 
       zoom: initialZoom
     });
+    var skip = 'yes';
   });
 
 });
