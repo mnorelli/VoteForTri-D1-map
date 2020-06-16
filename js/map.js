@@ -20,38 +20,6 @@ var geocoder = new MapboxGeocoder({
   marker: {color: 'rgba(76,0,53,1)'}
 });
 
-
-//   Construct ArcGIS REST to query Esri geocoder by lonlat by single-line address
-// var esriTarget = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?SingleLine=';
-// var esriType = 'f=pjson';
-// var esriStore = 'forStorage=false';
-// var esriFields = 'outFields=*';
-// var esripart2 = '&'
-//              + esriFields + '&'
-//              + esriStore + '&'
-//              + esriType
-
-// https://gomakethings.com/promise-based-xhr/
-// var makeRequest = function (url) {
-//   var request = new XMLHttpRequest();
-//   return new Promise(function (resolve, reject) {
-//     request.onreadystatechange = function () {
-//       if (request.readyState !== 4) return;
-//       if (request.status >= 200 && request.status < 300) {
-//         resolve(request);
-//       } else {
-//         reject({
-//           status: request.status,
-//           statusText: request.statusText
-//         });
-//       }
-//     };
-//     request.open('GET', url, true);
-//     request.send();
-//   });
-// };
-
-
 document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
 
 
@@ -135,31 +103,11 @@ map.on('load', function() {
   // save Search text into database
   // allow database to be exported/viewed
 
-
-    // features.forEach(i => console.log(i.properties.NAME));
-
-  // Get Esri geographic coordinate for MapBox query name or address
-  // console.log(e.result.place_name);
-
-  // var esriURL = esriTarget + e.result.place_name + esripart2;
-  // makeRequest(esriURL)
-  // .then(function (esriPt) {
-  //   var esri_obj = JSON.parse(esriPt.response);
-  //   var esriX = esri_obj.candidates[0].location.x
-  //   var esriY = esri_obj.candidates[0].location.y
-  //   console.log('The Esri geocode for this address is ' + esriX + ', ' + esriY);
-  //   var point = new mapboxgl.Point(esriX,esriY);
-
-
     say('','black');
-
-    console.log(e.result.place_name);
-    console.log(e.result.center);
 
     map.on('moveend', function() {
 
-
-      if (skip == 'no') {
+      if (skip == 'no') {  // when moving to new geocode result
 
          var features = map.queryRenderedFeatures(e.result.center.point, {
             layers: ['allDistricts']
@@ -180,11 +128,6 @@ map.on('load', function() {
     });
 
   });
-      // .catch(function (error) {
-      //   say('Something went wrong');
-      //   console.log(error);
-      // });
-  // });
 
   document.getElementById('button').addEventListener('click', function() {
     // say('');
@@ -192,7 +135,7 @@ map.on('load', function() {
       center: centerD1, 
       zoom: initialZoom
     });
-    var skip = 'yes';
+    var skip = 'yes';  // don't change Council message when zooming back to initial point
   });
 
 });
