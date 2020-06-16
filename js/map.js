@@ -103,13 +103,15 @@ map.on('load', function() {
   // save Search text into database
   // allow database to be exported/viewed
 
-    say('','black');
+    var resultPoint = e.result.center.point
+
+    say('');
 
     map.on('moveend', function() {
 
       if (skip == 'no') {  // when moving to new geocode result
 
-         var features = map.queryRenderedFeatures(e.result.center.point, {
+         var features = map.queryRenderedFeatures(resultPoint, {
             layers: ['allDistricts']
           });
   
