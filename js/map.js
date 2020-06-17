@@ -143,6 +143,10 @@ map.on('load', function() {
 
   });
 
+  geocoder.on('clear', function() {
+    say('')
+    });
+
   document.getElementById('button').addEventListener('click', function() {
     map.fitBounds([
         bboxLR,
