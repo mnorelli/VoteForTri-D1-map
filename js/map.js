@@ -1,7 +1,4 @@
 var centerD1 = [-122.246048,37.852483];
-// with wide margin
-// var bboxLR = [-122.29513,37.81106];
-// var bboxUL = [-122.19705,37.89389];
 var bboxLR = [-122.288740112,37.818867215];
 var bboxUL = [-122.2008351947,37.885367996];
 var initialZoom = 12.5;
@@ -28,6 +25,13 @@ function roundIfNeeded(num, decimals) {
   return Math.round((num + Number.EPSILON) * Math.pow(10,decimals)) / Math.pow(10,decimals)
 };
 
+var msg = document.getElementById('message');
+function say(message, color) {
+  msg.textContent='';
+  msg.style.color=color||'black';
+  msg.textContent=message;
+}
+
 map.on('load', function() {
 
   map.fitBounds([
@@ -37,14 +41,6 @@ map.on('load', function() {
   {
     padding: {top: 10, bottom:10, left: 10, right: 10}
   });
-
-
-  var msg = document.getElementById('message');
-  function say(message, color) {
-    msg.textContent='';
-    msg.style.color=color||'black';
-    msg.textContent=message;
-  }
   
   map.addControl(new mapboxgl.NavigationControl());
 
@@ -97,7 +93,7 @@ map.on('load', function() {
   'source': 'districtsAll',
   'layout': {},
   'paint': {
-    'fill-color': 'rgba(0,0,0, 0)'
+    'fill-color': 'rgba(0,0,0, 0.2)'
     }
   },
   firstSymbolId);
@@ -120,11 +116,11 @@ map.on('load', function() {
       var centerLat = roundIfNeeded(map.getCenter().lat,4)
 
 
-      // since 'moveend' is triggered by geocoder or user,
-      // only check for point in polygon geocoder moves to new  result
+      // since 'moveend' can be triggered by user as well as geocoder,
+      // only check for point in polygon when geocoder moves to new result
       if (skip == 'no' && resultLng == centerLng && resultLat == centerLat){
 
-         var features = map.queryRenderedFeatures(e.result.center.point, {
+         var features = map.queryRenderedFeatures([centerLng,centerLat], {
             layers: ['allDistricts']
           });
   
