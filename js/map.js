@@ -1,9 +1,11 @@
 var centerD1 = [-122.246048,37.852483];
-var bboxLR = [-122.29513,37.81106];
-var bboxUL = [-122.19705,37.89389];
+// with wide margin
+// var bboxLR = [-122.29513,37.81106];
+// var bboxUL = [-122.19705,37.89389];
+var bboxLR = [-122.288740112,37.818867215];
+var bboxUL = [-122.2008351947,37.885367996];
 var initialZoom = 12.5;
 var skip = 'no';
-
 
 mapboxgl.accessToken = TOKEN;
 var map = new mapboxgl.Map({
@@ -27,6 +29,15 @@ function roundIfNeeded(num, decimals) {
 };
 
 map.on('load', function() {
+
+  map.fitBounds([
+    bboxLR,
+    bboxUL
+  ],
+  {
+    padding: {top: 10, bottom:10, left: 10, right: 10}
+  });
+
 
   var msg = document.getElementById('message');
   function say(message, color) {
@@ -91,14 +102,6 @@ map.on('load', function() {
   },
   firstSymbolId);
 
-  map.on('click', function(e) {
-        var features = map.queryRenderedFeatures(e.point, {
-          layers: ['allDistricts']
-        });
-
-        features.forEach(i => console.log(i.properties.NAME));
-    });
-
   geocoder.on('result', function(e) {
 
   // TO DO
@@ -115,7 +118,10 @@ map.on('load', function() {
       var centerLng = roundIfNeeded(map.getCenter().lng,4)
       var centerLat = roundIfNeeded(map.getCenter().lat,4)
 
-      if (skip == 'no' && resultLng == centerLng && resultLat == centerLat){  // only when moving to new geocode result
+
+      // since 'moveend' is triggered by geocoder or user,
+      // only check for point in polygon geocoder moves to new  result
+      if (skip == 'no' && resultLng == centerLng && resultLat == centerLat){
 
          var features = map.queryRenderedFeatures(e.result.center.point, {
             layers: ['allDistricts']
@@ -138,11 +144,13 @@ map.on('load', function() {
   });
 
   document.getElementById('button').addEventListener('click', function() {
-    // say('');
-    map.flyTo({
-      center: centerD1, 
-      zoom: initialZoom
-    });
+    map.fitBounds([
+        bboxLR,
+        bboxUL
+      ],
+      {
+        padding: {top: 10, bottom:10, left: 10, right: 10}
+      });
     var skip = 'yes';  // don't change Council message when zooming back to initial point
   });
 
