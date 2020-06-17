@@ -108,6 +108,7 @@ map.on('load', function() {
   // 
   // save Search text into database
   // allow database to be exported/viewed
+  // 4 Eucalyptus Road, Berkeley ??
 
     say('');
     var resultLng = roundIfNeeded(e.result.center[0],4)
