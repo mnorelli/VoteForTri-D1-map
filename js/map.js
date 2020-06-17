@@ -22,6 +22,9 @@ var geocoder = new MapboxGeocoder({
 
 document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
 
+function roundIfNeeded(num, decimals) {
+  return Math.round((num + Number.EPSILON) * Math.pow(10,decimals)) / Math.pow(10,decimals)
+};
 
 map.on('load', function() {
 
@@ -74,7 +77,7 @@ map.on('load', function() {
 
   map.addSource('districtsAll', {
       'type': 'geojson',
-      data: districtsAll
+      'data': districtsAll
   });
 
   map.addLayer({
@@ -103,15 +106,18 @@ map.on('load', function() {
   // save Search text into database
   // allow database to be exported/viewed
 
-    var resultPoint = e.result.center.point
-
     say('');
+    var resultLng = roundIfNeeded(e.result.center[0],4)
+    var resultLat = roundIfNeeded(e.result.center[1],4)
 
     map.on('moveend', function() {
 
-      if (skip == 'no') {  // when moving to new geocode result
+      var centerLng = roundIfNeeded(map.getCenter().lng,4)
+      var centerLat = roundIfNeeded(map.getCenter().lat,4)
 
-         var features = map.queryRenderedFeatures(resultPoint, {
+      if (skip == 'no' && resultLng == centerLng && resultLat == centerLat){  // only when moving to new geocode result
+
+         var features = map.queryRenderedFeatures(e.result.center.point, {
             layers: ['allDistricts']
           });
   
