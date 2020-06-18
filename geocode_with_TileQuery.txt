@@ -1,0 +1,18 @@
+https://api.mapbox.com/v4/mnorelli.15quuc9l/tilequery/-122.2758814,37.8315587.json?radius=2&limit=5&dedupe&access_token=pk.eyJ1IjoibW5vcmVsbGkiLCJhIjoiY2s2NGFieDltMHh5MTNrcDY5bGowdmtjbCJ9.pJjLA7PzP9ZrspsNhqj6fg
+
+
+In reply to https://gregorthemapguy.blogspot.com/2017/11/more-mapbox-using-querysourcefeatures.html
+
+For anyone finding this in the future, I slayed my maddening problems with queryRenderedFeatures not giving results from outside the map view with TileSets API.  
+
+1. load data to MapBox Studio as a custom TileSet
+https://studio.mapbox.com/tilesets/
+2. get the TileSet ID
+3. use the MapBox JS SDK to implement a TileQuery
+https://github.com/mapbox/mapbox-sdk-js/blob/master/docs/services.md
+and
+https://github.com/mapbox/mapbox-sdk-js
+4.  test out a TileQuery API call with the Tilequery API Playground using the custom TileSet ID
+https://docs.mapbox.com/playground/tilequery/
+
+Thanks, Gregor, for leaving this breadcrumb trail that led to revelation!

@@ -66,7 +66,7 @@ map.on('load', function() {
         var features = map.queryRenderedFeatures(e.point, {
           layers: ['allDistricts']
         });
-
+console.log(e.point)
         // Limit the number of properties we're displaying for
         // legibility and performance
         var displayProperties = [

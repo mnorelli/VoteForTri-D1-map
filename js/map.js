@@ -4,6 +4,8 @@ var bboxUL = [-122.2008351947,37.885367996];
 var initialZoom = 12.5;
 var skip = 'no';
 
+const mapboxClient = mapboxSdk({ accessToken: TOKEN });
+
 mapboxgl.accessToken = TOKEN;
 var map = new mapboxgl.Map({
   container: 'map', 
@@ -32,6 +34,18 @@ function say(message, color) {
   msg.textContent=message;
 }
 
+document.getElementById('button').addEventListener('click', function() {
+  map.fitBounds([
+      bboxLR,
+      bboxUL
+    ],
+    {
+      padding: {top: 10, bottom:10, left: 10, right: 10}
+    });
+  var skip = 'yes';  // don't change Council message when zooming back to initial point
+});
+
+
 map.on('load', function() {
 
   map.fitBounds([
@@ -41,7 +55,7 @@ map.on('load', function() {
   {
     padding: {top: 10, bottom:10, left: 10, right: 10}
   });
-  
+
   map.addControl(new mapboxgl.NavigationControl());
 
   var layers = map.getStyle().layers;
@@ -82,21 +96,6 @@ map.on('load', function() {
   },
   firstSymbolId);
 
-  map.addSource('districtsAll', {
-      'type': 'geojson',
-      'data': districtsAll
-  });
-
-  map.addLayer({
-  'id': 'allDistricts',
-  'type': 'fill',
-  'source': 'districtsAll',
-  'layout': {},
-  'paint': {
-    'fill-color': 'rgba(0,0,0, 0.2)'
-    }
-  },
-  firstSymbolId);
 
   geocoder.on('result', function(e) {
 
@@ -104,55 +103,39 @@ map.on('load', function() {
   // 
   // save Search text into database
   // allow database to be exported/viewed
-  // 4 Eucalyptus Road, Berkeley ??
 
     say('');
-    var resultLng = roundIfNeeded(e.result.center[0],4)
-    var resultLat = roundIfNeeded(e.result.center[1],4)
 
-    map.on('moveend', function() {
-
-      var centerLng = roundIfNeeded(map.getCenter().lng,4)
-      var centerLat = roundIfNeeded(map.getCenter().lat,4)
-
-
-      // since 'moveend' can be triggered by user as well as geocoder,
-      // only check for point in polygon when geocoder moves to new result
-      if (skip == 'no' && resultLng == centerLng && resultLat == centerLat){
-
-         var features = map.queryRenderedFeatures([centerLng,centerLat], {
-            layers: ['allDistricts']
-          });
-  
-          if (features[0]) {
-            if (features[0].properties.NAME == 'CCD1') {
-              say('Your address is in ' + features[0].properties.FULLNAME, 'darkgreen');
-            }
-            else {
-              say('Your address is in ' + features[0].properties.FULLNAME, 'crimson');
-            }
-          } else {
-              say('Your address is not in an Oakland City Council District','darkgrey');
-          };
-      };
-    
-    });
+    mapboxClient.tilequery.listFeatures({
+       mapIds: ['mnorelli.2q8y5xhe'],
+       coordinates: e.result.center,
+       radius: 1
+    })
+    .send()
+    .then(response => {
+      console.log(response.body.features[0]);
+      console.log(dist)
+      if (response.body.features[0]) {
+      var dist = response.body.features[0].properties;
+        if (dist.NAME == 'CCD1') {
+          say('Your address is in ' + dist.FULLNAME, 'darkgreen');
+        }
+        else {
+          say('Your address is in ' + dist.FULLNAME, 'crimson');
+        }
+      } else {
+          say('Your address is not in an Oakland City Council District','darkgrey');
+      }
+    })
+    .catch(error => {
+      say('An error occurred.')
+      console.log('Tilequery error: ' + error);
+      });
 
   });
 
-  geocoder.on('clear', function() {
-    say('')
-    });
-
-  document.getElementById('button').addEventListener('click', function() {
-    map.fitBounds([
-        bboxLR,
-        bboxUL
-      ],
-      {
-        padding: {top: 10, bottom:10, left: 10, right: 10}
-      });
-    var skip = 'yes';  // don't change Council message when zooming back to initial point
+geocoder.on('clear', function() {
+  say('')
   });
 
 });
