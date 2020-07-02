@@ -45,7 +45,6 @@ document.getElementById('button').addEventListener('click', function() {
   var skip = 'yes';  // don't change Council message when zooming back to initial point
 });
 
-
 map.on('load', function() {
 
   map.fitBounds([
