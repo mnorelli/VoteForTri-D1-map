@@ -117,7 +117,7 @@ map.on('load', function() {
       if (response.body.features[0]) {
       var dist = response.body.features[0].properties;
         if (dist.NAME == 'CCD1') {
-          say('Your address is in ' + dist.FULLNAME, 'darkgreen');
+          say('Your address is in ' + dist.FULLNAME, '#FCF3CF');
         }
         else {
           say('Your address is in ' + dist.FULLNAME, 'crimson');
