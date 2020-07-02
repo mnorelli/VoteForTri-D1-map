@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <title>District 1 Map</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.js'></script>
+    <script src='https://unpkg.com/@mapbox/mapbox-sdk/umd/mapbox-sdk.min.js'></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js'></script>
+    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css' type='text/css'/>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.css' rel='stylesheet' />
+    <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+    <script src='https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js'></script>
+  </head>
+  <body>
+    <style>
+      body {
+  margin: 0;
+  padding: 0;
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  margin-top: 60px;
+}
+
+.search {
+  height: 60px;
+  width: 100%;
+  /*background-color: gray;*/
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.mapboxgl-ctrl-geocoder {
+  min-width: 400px !important;
+}
+
+.geocoder {
+  float: left;
+  width: 400px;
+  height: 35px;
+  margin: 10px;
+}
+
+#message {
+  height: 25px;
+  width: 575px;
+  padding: 6px 14px;
+
+  font-size: 1.5em;
+  margin-top: 8px;
+  text-shadow: 1px 1px 7px grey;
+  font-family: Helvetica;
+}
+
+.button {
+  width: 200px;
+}
+
+.styled {
+    outline: none;
+    height: 35px;
+    margin: 10px 10px 0 10px;
+    border: 0;
+    padding: 0 15px;
+    font-size: 0.8em;
+    text-align: center;
+    color: #fff;
+    text-shadow: 1px 1px 1px #000;
+    border-radius: 10px;
+    background-color: rgba(200, 200, 200, 1);
+    background-image: linear-gradient(to top left,
+                                      rgba(0, 0, 0, .2),
+                                      rgba(0, 0, 0, .2) 30%,
+                                      rgba(0, 0, 0, 0));
+    box-shadow: inset 2px 2px 3px rgba(255, 255, 255, .6),
+                inset -2px -2px 3px rgba(0, 0, 0, .6);
+}
+
+.styled:hover {
+    background-color: rgba(220, 220, 220, 1);
+}
+
+.styled:active {
+    box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6),
+                inset 2px 2px 3px rgba(0, 0, 0, .6);
+}
+
+@media (max-width: 1211px) {
+    #map {
+      margin-top: 93px;
+    }
+
+    #message {
+      margin-top: 0;
+    }
+}
+
+@media (max-width: 639px) {
+    #map {
+      margin-top: 107px;
+    }
+
+    #message {
+      margin-top: 12px;
+    }
+
+    .styled {
+      font-size: 1em;
+    }
+}
+
+@media (max-width: 637px) {
+    #map {
+      margin-top: 146px;
+    }
+
+    #button {
+      margin-bottom: 0px ;
+    }
+
+    #message {
+      margin-top: 6px ;
+    }
+
+    .styled {
+      font-size: 1em;
+    }
+}
+
+@media (max-width: 614px) {
+    #message {
+      margin-top: 2px ;
+      font-size: 1.2em;
+    }
+}
+
+@media (max-width: 487px) {
+    #map {
+      margin-top: 153px;
+    }
+}
+    </style>
+
+    <div id='map'></div>
+    <div class='search'>
+      <div id='geocoder' class='geocoder'></div> <!-- https://docs.mapbox.com/mapbox-gl-js/example/mapbox-gl-geocoder-outside-the-map/ -->
+      <button class='styled' id='button'>Zoom back to District 1</button>
+      <div id='message'></div>
+    </div>
+    <script>
+      var TOKEN = 'pk.eyJ1IjoibW5vcmVsbGkiLCJhIjoiY2s4cDRyYzdiMWJ2dzNsbjJhMXdxMTAzdCJ9.aRVMKqAeH_5mU3cbo3T5fw'
+      // public token
+      // var TOKEN = 'pk.eyJ1IjoibW5vcmVsbGkiLCJhIjoiY2s4cDRyYzdiMWJ2dzNsbjJhMXdxMTAzdCJ9.aRVMKqAeH_5mU3cbo3T5fw'
+      var centerD1 = [-122.246048,37.852483];
+      var bboxLR = [-122.288740112,37.818867215];
+      var bboxUL = [-122.2008351947,37.885367996];
+      var initialZoom = 12.5;
+      var skip = 'no';
+
+      const mapboxClient = mapboxSdk({ accessToken: TOKEN });
+
+      mapboxgl.accessToken = TOKEN;
+      var map = new mapboxgl.Map({
+        container: 'map', 
+        style: 'mapbox://styles/mnorelli/ckblbrbor0acu1io6ig17fqyp',
+        center: centerD1, 
+        zoom: initialZoom, 
+      });
+
+      var geocoder = new MapboxGeocoder({ 
+        accessToken: mapboxgl.accessToken, 
+        placeholder: 'Search in District 1',
+        mapboxgl: mapboxgl,
+        marker: {color: 'rgba(76,0,53,1)'}
+      });
+
+      document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
+
+      var msg = document.getElementById('message');
+      function say(message, color) {
+        msg.textContent='';
+        msg.style.color=color||'black';
+        msg.textContent=message;
+      }
+
+      document.getElementById('button').addEventListener('click', function() {
+        map.fitBounds([
+            bboxLR,
+            bboxUL
+          ],
+          {
+            padding: {top: 10, bottom:10, left: 10, right: 10}
+          });
+        var skip = 'yes';  // don't change Council message when zooming back to initial point
+      });
+
+
+      map.on('load', function() {
+
+        map.fitBounds([
+          bboxLR,
+          bboxUL
+        ],
+        {
+          padding: {top: 10, bottom:10, left: 10, right: 10}
+        });
+
+        map.addControl(new mapboxgl.NavigationControl());
+
+        geocoder.on('result', function(e) {
+
+        // TO DO
+        // 
+        // save Search text into database
+        // allow database to be exported/viewed
+
+          say('');
+
+          mapboxClient.tilequery.listFeatures({
+             mapIds: ['mnorelli.2q8y5xhe'],
+             coordinates: e.result.center,
+             radius: 1
+          })
+          .send()
+          .then(response => {
+            if (response.body.features[0]) {
+            var dist = response.body.features[0].properties;
+              if (dist.NAME == 'CCD1') {
+                say('Your address is in ' + dist.FULLNAME, 'darkgreen');
+              }
+              else {
+                say('Your address is in ' + dist.FULLNAME, 'crimson');
+              }
+            } else {
+                say('Your address is not in an Oakland City Council District','darkgrey');
+            }
+          })
+          .catch(error => {
+            say('An error occurred.')
+            console.log('Tilequery error: ' + error);
+            });
+
+        });
+
+      geocoder.on('clear', function() {
+        say('')
+        });
+
+      });
+
+    </script>
+  </body>
+</html>
