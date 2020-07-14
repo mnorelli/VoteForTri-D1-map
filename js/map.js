@@ -61,7 +61,7 @@ map.on('load', function() {
 
   map.addSource('district1', {
       'type': 'geojson',
-      data: data
+      data: data    
   });
 
   map.addLayer({
@@ -98,6 +98,11 @@ map.on('load', function() {
 
   geocoder.on('result', function(e) {
 
+    console.log('place_name: '+e.result.place_name);
+    $.getJSON("https://api.ipify.org?format=json", function(data) { 
+      console.log(data.ip); 
+     }) 
+
   // TO DO
   // 
   // save Search text into database
@@ -113,7 +118,6 @@ map.on('load', function() {
     .send()
     .then(response => {
       console.log(response.body.features[0]);
-      console.log(dist)
       if (response.body.features[0]) {
       var dist = response.body.features[0].properties;
         if (dist.NAME == 'CCD1') {
