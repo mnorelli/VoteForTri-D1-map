@@ -16,7 +16,7 @@ var map = new mapboxgl.Map({
 
 var geocoder = new MapboxGeocoder({ 
   accessToken: mapboxgl.accessToken, 
-  placeholder: 'Search in District 1',
+  placeholder: 'Enter address',
   mapboxgl: mapboxgl,
   marker: {color: 'rgba(76,0,53,1)'}
 });
